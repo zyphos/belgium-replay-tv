@@ -8,7 +8,7 @@ class Channel(channel.Channel):
     def get_main_url(self):
         return 'http://vtm.be'
     
-    def get_categories(self, skip_empty_id = True):
+    def get_categories(self, datas, skip_empty_id = True):
         data = channel.get_url(self.main_url + '/video/programma')
         regex = r"""<li><a href="([^"]+)">([^<]+)</a></li>"""
         for url, name in re.findall(regex, data):

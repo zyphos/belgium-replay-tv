@@ -9,7 +9,7 @@ class Channel(channel.Channel):
     def get_main_url(self):
         return 'http://www.een.be'
 
-    def get_categories(self):
+    def get_categories(self, datas):
         data = channel.get_url(self.main_url + '/mediatheek')
         regex = r"""value="(\d+)">([^<]+)"""
         for url, name in re.findall(regex, data):

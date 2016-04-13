@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 
-import urllib, urllib2, re, os, sys
+import urllib, urllib2, re, os, sys, time, datetime
+import sqlite3
 from htmlentitydefs import name2codepoint
 
 try:
@@ -105,13 +106,72 @@ def playUrl(url):
         return True
     liz = xbmcgui.ListItem(path=url)
     return xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=liz)
+
+class Database(object):
+    def __init__(self, name):
+        self.name = name
+        profilePath = xbmc.translatePath(__settings__.getAddonInfo('profile'))
+        if not os.path.exists(profilePath):
+            os.makedirs(profilePath)
+        self.databasePath = os.path.join(profilePath, name)
+        sqlite3.register_adapter(datetime.datetime, self.adapt_datetime)
+        sqlite3.register_converter('timestamp', self.convert_datetime)
+        self.conn = sqlite3.connect(self.databasePath, detect_types=sqlite3.PARSE_DECLTYPES)
+        self.create_tables()
+    
+    @staticmethod
+    def adapt_datetime(ts):
+        # http://docs.python.org/2/library/sqlite3.html#registering-an-adapter-callable
+        return time.mktime(ts.timetuple())
+
+    @staticmethod
+    def convert_datetime(ts):
+        try:
+            return datetime.datetime.fromtimestamp(float(ts))
+        except ValueError:
+            return None
+    
+    def create_tables(self):
+        cr = self.conn.cursor()
+        cr.execute('CREATE TABLE IF NOT EXISTS category(id INTEGER PRIMARY KEY, parent_id INTEGER, url STR, icon STR, name STR, last_update TIMESTAMP)')
+        cr.close()
+    
+    def get_cr(self):
+        return self.conn.cursor()
+    
+    def add_cat(self, cr, name='', url=None, icon=None, parent_id=None):
+        last_update = datetime.datetime.now()
+        cr.execute('INSERT INTO category(parent_id, url, icon, name, last_update) VALUES(?, ?, ?, ?, ?)', [parent_id, url, icon, name, last_update])
+    
+    def reset_cat(self, cr=None):
+        sql = 'DELETE FROM category WHERE 1'
+        if cr is None:
+            cr = self.conn.cursor()
+            cr.execute(sql)
+            cr.close()
+            return
+        cr.execute(sql)
+    
+    def get_cats(self, parent_id=None):
+        cr = self.conn.cursor()
+        cr.execute('SELECT url, icon, name, last_update FROM category WHERE parent_id=?', [parent_id])
+        res = []
+        for row in cr:
+            res.append(row)
+        cr.close()
+        return res
+        
     
 class Channel(object):
+    cache_db = None
+
     def __init__(self, context):
         self.channel_id = context.get('channel_id')
         self.main_url = self.get_main_url()
         if in_xbmc:
             self.icon = xbmc.translatePath(os.path.join(home, 'resources/' + context['icon']))
+            if self.cache_db is not None:
+                self.db = Database(self.cache_db)
         else:
             self.icon = context.get('icon')
         action = context.get('action')
@@ -119,25 +179,39 @@ class Channel(object):
         print 'context:'
         print context
         print
-        if action == 'show_categories':
-            self.get_categories()
-        elif action == 'show_subcategories':
-            self.get_subcategories(context)
-        elif action == 'show_videos':
-            self.get_videos(context)
-        elif action == 'play_video':
-            self.play_video(context)
-        elif action == 'get_lives':
-            self.get_lives(context)
-        elif action == 'play_live':
-            self.play_live(context)
-        elif action == 'scan_empty':
-            self.scan_empty(context)
+        actions = {'show_categories': self.show_categories,
+                   'show_subcategories': self.get_subcategories,
+                   'show_videos': self.get_videos,
+                   'play_video': self.play_video,
+                   'get_lives': self.get_lives,
+                   'play_live': self.play_live,
+                   'scan_empty': self.scan_empty,
+                   }
+        if action in actions:
+            actions[action](context)
             
     def set_main_url(self):
         return ''
+    
+    def show_categories(self, context, skip_empty_id = True):
+        is_subcat = context.get('subcat') == '1'
+        categories = self.get_categories(context, skip_empty_id)
+        
+        def show_them(cats):
+            for category in cats:
+                url, id, img, name = category
+                name = htmlentitydecode(name)
+                addDir(name, img, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+        if isinstance(categories, dict):
+            if is_subcat:
+                show_them(categories[categories.keys()[int(context.get('url'))]])
+            else:
+                for i, cat_name in enumerate(categories):
+                    addDir(cat_name, 'DefaultVideo.png', channel_id=self.channel_id, url=str(i), action='show_categories', subcat='1')
+        else:
+            show_them(categories)
             
-    def get_categories(self, skip_empty_id = True):
+    def get_categories(self, datas, skip_empty_id = True):
         pass
     
     def get_subcategories(self, datas):

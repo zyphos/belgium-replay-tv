@@ -7,19 +7,35 @@ import channel
 id2skip = [str(x) for x in [5683,2913,5614,5688,156]]
 
 class Channel(channel.Channel):
+    #cache_db = 'rtbf.db'
+
     def get_main_url(self):
         return 'http://www.rtbf.be'
     
-    def get_categories(self, skip_empty_id = True):
-        channel.addDir('Directs', 'DefaultVideo.png', channel_id=self.channel_id, action='get_lives')
+    def get_categories_iter(self, skip_empty_id):
         data = channel.get_url(self.main_url + '/video/emissions')
-        #regex = r"""href="http://www.rtbf.be/video/recherche([^"]+)">([^<]+)"""
         regex = r"""http://www.rtbf.be/video/emissions/detail_([^"]+)"><img src="([^"]+)"[^/]+/><span>([^<]+)"""
         for url, icon, name in re.findall(regex, data):
             id = url.split('pid=')[1]
             if skip_empty_id and id in id2skip:
                 continue
+            yield url, icon, name, id
+    
+    def cache_all_categories(self, skip_empty_id):
+        self.db.reset_cat()
+        for url, icon, name, id in self.get_categories_iter(skip_empty_id):
+            self.db.add_cat(name=name, icon=icon, url=url, id=id)
+    
+    def get_categories(self, datas, skip_empty_id = True):
+        channel.addDir('Directs', 'DefaultVideo.png', channel_id=self.channel_id, action='get_lives')
+        for url, icon, name, id in self.get_categories_iter(skip_empty_id):
             channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+        """cats = self.db.get_cats()
+        if len(cats) == 0:
+            self.cache_all_categories(skip_empty_id)
+            cats = self.db.get_cats()
+        for cat in cats:
+            channel.addDir(cat['name'], cat['icon'], channel_id=self.channel_id, url=cat['url'], action='show_videos', id=cat['id'])"""
 
     def get_lives(self, datas):
         def parse_lives(data):
@@ -98,14 +114,30 @@ class Channel(channel.Channel):
         if stream_name is None:
             return None
         stream_name = stream_name.group(1)
-        token_json_data = channel.get_url(self.main_url + '/api/media/streaming?streamname=' + stream_name, referer=page_url)
+        """token_json_data = channel.get_url(self.main_url + '/api/media/streaming?streamname=' + stream_name, referer=page_url)
         token = token_json_data.split('":"')[1].split('"')[0]
-        swf_url = 'http://static.infomaniak.ch/livetv/playerMain-v4.2.41.swf?sVersion=4%2E2%2E41&sDescription=&bLd=0&sTitle=&autostart=1'
+        swf_url = 'http://static.infomaniak.ch/livetv/playerMain-v4.2.73.swf?sVersion=4%2E2%2E41&sDescription=&bLd=0&sTitle=&autostart=1'
         rtmp = 'rtmp://rtmp.rtbf.be/livecast'
         page_url = 'http://www.rtbf.be'
         play = '%s?%s' % (stream_name, token)
         rtmp += '/%s swfUrl=%s pageUrl=%s tcUrl=%s' % (play, swf_url, page_url, rtmp)
         #xbmc.log('stream: ' + rtmp)
+        return rtmp"""
+        properties = [
+                      ('app', 'livecast'),
+                      #('flashVer', 'LNX 11,2,202,451'),
+                      ('swfUrl', 'http://static.infomaniak.ch/livetv/playerMain-v4.2.73.swf?sTitle=&bLd=0&sDescription=&sVersion=4%2E2%2E73'),
+                      ('tcUrl', 'rtmp://rtmp.rtbf.be/livecast'),
+                      #('fpad', False),
+                      #('capabilities', '239'),
+                      #('audioCodecs', '3575'),
+                      #('videoCodecs', '252'),
+                      #('videoFunction', '1'),
+                      ('pageUrl', page_url),
+                      #('objectEncoding', '0')
+                      ]
+        rtmp = 'rtmp://rtmp.rtbf.be/livecast'
+        rtmp += '/%s %s' % (stream_name, ' '.join(['%s=%s' % (p,v) for p,v in properties]))
         return rtmp
         """Correct this
 stream=1

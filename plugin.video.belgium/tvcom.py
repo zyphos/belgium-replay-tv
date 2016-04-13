@@ -8,7 +8,7 @@ class Channel(channel.Channel):
     def get_main_url(self):
         return 'http://www.tvcom.be'
     
-    def get_categories(self):
+    def get_categories(self, datas):
         data = channel.get_url(self.main_url)
         regex = r"""missions(.+?)</ul"""
         res = re.findall(regex, data)

@@ -1,3 +1,7 @@
+Version 0.0.next - -
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com, VTM, EEN (bugee)
+- Cache categories pour RTBF (navigation plus rapide).
+
 Version 0.0.21 - 2014-05-25
 Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com, VTM, EEN (bugee)
 - Réparation RTBF direct, juste quand l'émetteur de Wavre est offline, feu criminel.

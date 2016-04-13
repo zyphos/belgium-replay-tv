@@ -15,8 +15,36 @@ only_good_cat = {'2616': 'Le journal'}
 class Channel(channel.Channel):
     def get_main_url(self):
         return 'http://www.rtl.be/' 
-
-    def get_categories(self, skip_empty_id = True):
+    
+    def get_categories(self, datas, skip_empty_id = True):
+        # Get all categories
+        data = channel.get_url(self.main_url + self.channel_id + '/page/toutes-les-videos/237.aspx')
+        regex = r"""(?i)""" + self.channel_id + r"""(/categorie/[^/]+/(\d+)\.aspx)[^>]+><img[^"]+"([^"]+)[^>]*></a>\s*<h3>([^<]+)"""
+        all_categories = {}
+        for url, id, img, name in re.findall(regex, data):
+            all_categories[int(id)] = (url, id, img, name)
+            #if skip_empty_id and id in id2skip:
+            #    continue
+            #if id not in only_good_cat or name.find(only_good_cat[id]) != -1:
+            #    channels_data[url] = (name, img, id)
+        
+        # Get structure
+        data = channel.get_url(self.main_url + self.channel_id + '/')
+        data = data.split('class=SubmenuPopup ')[2]
+        data = data.split('</DIV></li></ul>')[0]
+        datas = data.replace('</H3>','<H3>').split('<H3>')[1:]
+        categories = {}
+        regex = r"""(?i)""" + self.channel_id + r"""/categorie/[^/]+/(\d+)\.aspx[^>]+>"""
+        for i in range(len(datas)/2):
+            title = datas[i*2]
+            content = datas[i*2+1]
+            subcats = []
+            for id in re.findall(regex, content):
+                subcats.append(all_categories[int(id)])
+            categories[title] = subcats
+        return categories
+    
+    def get_categories_old(self, datas, skip_empty_id = True):
         data = channel.get_url(self.main_url + self.channel_id + '/page/toutes-les-videos/237.aspx')
         regex = r"""(?i)""" + self.channel_id + r"""(/categorie/[^/]+/(\d+)\.aspx)[^>]+><img[^"]+"([^"]+)[^>]*></a>\s*<h3>([^<]+)"""
         print regex
