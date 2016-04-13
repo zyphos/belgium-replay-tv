@@ -1,0 +1,117 @@
+Version 0.0.21 - 2014-05-25
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com, VTM, EEN (bugee)
+- Réparation RTBF direct, juste quand l'émetteur de Wavre est offline, feu criminel.
+
+Version 0.0.20 - 2014-05-11
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com, VTM, EEN (bugee)
+- Changement dependance Python, sinon non compatible XBMC 13
+- Typos dans le regex Een (toujours un bug de lecture)
+- TV Com le site a changé
+- VTM les urls ne sont plus relatives
+
+Version 0.0.19 - 2013-11-30
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com, VTM, EEN
+- Ajout de VTM et één
+
+Version 0.0.18 - 2013-11-27
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTBF:
+- Ajout des directs
+- Correction du regex, le site à un peu changé.
+
+Version 0.0.17 - 2013-09-26
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTBF:
+- Correction du regex le site à un peu changé.
+
+Version 0.0.16 - 2013-07-07
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTL-TVI:
+- Regex plus robuste pour les videos.
+- Ajout de filtre pour certaines catégories (JT par exemple)
+
+Version 0.0.15 - 2013-06-02
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTBF:
+- Correction du regex pour certaines catégories.
+
+Version 0.0.14 - 2013-06-02
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTBF, RTL-TVI, CLUB RTL, PLUG RTL:
+- Suppression des catégories vides
+
+Version 0.0.13 - 2012-12-31
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTBF:
+- Le site a changé
+
+Version 0.0.12
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTBF:
+- Une protection MD5 a été ajouté.
+
+Version 0.0.11
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTBF:
+- Correction rapide du parser, le site à changé.
+
+Version 0.0.10
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTL:
+- Ajout des dernières videos disponibles dans chaque catégorie
+
+Version 0.0.9
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTL:
+- Correction rapide du parser, le site à changé.
+- Bug: les videos ne sont plus dans l'ordre chronologique mais les plus vues.
+
+Version 0.0.8
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTL:
+- Correction du parser, le site à changé.
+- Bug sous Plug RTL apparement, elmenttree n'arrive pas à parser l'HTML.
+
+Version 0.0.7
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+RTL:
+- Correction de la gestion des doublons, par ID au lieu du titre.
+- Correction HTML entities non traduits.
+RTBF:
+- Correction  HTML entities des apostrophes et guillemets.
+
+Version 0.0.6
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+TvCom:
+- Correction fichiers avec espace
+RTL:
+- Conservation de la structure des sites pour les categories
+- Acceleration du listing des videos (methode de TvCom)
+- Ajout raté des emissions live en RTMP. L'url est lisible par ffplay mais pas par XBMC
+- Petit bug en ce moment, le premier JT est cassé, c'est pareil sur le site original.
+RTBF:
+- Acceleration du listing des videos (methode de TvCom)
+
+Version 0.0.5
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com
+- Correction du tri pour les chaines RTL
+- Ajout de Tv Com
+
+Version 0.0.4
+Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL
+- Correction des chaines RTL, petit changement sur leur site.
+- refactorisation du code
+
+Version 0.0.3
+- Correction des accents pour les catégories RTL
+- Correction dernier ID RTBF (id d'un autre service)
+- Correction icône Club RTL
+- Ajout d'une icône pour le plug-in (icon.png)
+- Tentative d'ajout, rate, description, et subtitle de RTBF, impossible Python 2.4 doit être buggé et part en vrille. Des variables string qui ne deviennent plus string 1 ligne après.
+
+Version 0.0.2
+- ajout de la RTBF (attention XBMC ne supporte que la pause, les retours avant et arrière bloquent)
+- refactorisation du code
+
+Version 0.0.1
+Initial release
