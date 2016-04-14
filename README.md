@@ -14,3 +14,6 @@ Other channels are broken at this time:
 
 # To build this package
  7z a plugin.video.belgium-0.0.xx.zip plugin.video.belgium
+
+# Download packed ready to use file
+ http://kodi-passion.fr/addons/?Page=View&ID=plugin.video.belgium
