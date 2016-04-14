@@ -1,3 +1,7 @@
+Version 0.0.22 - 2016-04-14
+Chaines supportees: RTBF
+- Réparation partielle de RTBF. La RTBF a lancé son service Auvio (2016-04-13)
+
 Version 0.0.21 - 2014-05-25
 Chaines supportees: RTBF, RTL-TVI, CLUB RTL, PLUG RTL, Tv Com, VTM, EEN (bugee)
 - Réparation RTBF direct, juste quand l'émetteur de Wavre est offline, feu criminel.

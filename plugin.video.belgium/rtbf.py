@@ -3,6 +3,7 @@
 
 import re
 import channel
+import HTMLParser
 
 id2skip = [str(x) for x in [5683,2913,5614,5688,156]]
 
@@ -11,12 +12,11 @@ class Channel(channel.Channel):
         return 'http://www.rtbf.be'
     
     def get_categories(self, skip_empty_id = True):
-        channel.addDir('Directs', 'DefaultVideo.png', channel_id=self.channel_id, action='get_lives')
-        data = channel.get_url(self.main_url + '/video/emissions')
-        #regex = r"""href="http://www.rtbf.be/video/recherche([^"]+)">([^<]+)"""
-        regex = r"""http://www.rtbf.be/video/emissions/detail_([^"]+)"><img src="([^"]+)"[^/]+/><span>([^<]+)"""
-        for url, icon, name in re.findall(regex, data):
-            id = url.split('pid=')[1]
+        #channel.addDir('Directs', 'DefaultVideo.png', channel_id=self.channel_id, action='get_lives')
+        data = channel.get_url(self.main_url + '/auvio/emissions')
+        regex = r""",([^-]+-original.png)[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span[^<]+</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
+        for icon, url, name in re.findall(regex, data):
+            id = url.split('?id=')[1]
             if skip_empty_id and id in id2skip:
                 continue
             channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
@@ -33,8 +33,17 @@ class Channel(channel.Channel):
         parse_lives(data)
         data = channel.get_url(live_url + '?category=&page=2&client=')
         parse_lives(data)
-
+    
     def get_videos(self, datas):
+        url = datas.get('url')
+        data = channel.get_url(url)
+        regex = r""">([^<]+)</time>\s*\n\s*<h3[^<]*<a href="([^"]+)"[^>]*>([^<]+)</a></h3>"""
+        for date, url, title in re.findall(regex, data):
+            title = title + ' - ' + date
+            vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
+            channel.addLink(title.replace('&#039;', "'").replace('&#034;', '"'), vurl, None)
+    
+    def get_videos_old(self, datas):
         #from datetime import datetime
         url = datas.get('url')
         vid_id = datas.get('vid_id')
@@ -60,9 +69,9 @@ class Channel(channel.Channel):
             page = next_page.group(1)
             channel.addDir('Page nr ' + page, self.icon, channel_id=self.channel_id, vid_id=vid_id, action='show_videos', page=page, md5=md5)
             
-    def get_video_id(self, url):
+    def get_video_id_old(self, url):
         rawstr = r"""id="hidVideoId" value="(\d+)"""
-        data = channel.get_url(self.main_url + '/video/emissions/detail_' + url)
+        data = channel.get_url(self.main_url + '/auvio/emissions/detail_' + url)
         id = re.search(rawstr, data)
         if id is not None:
             video_id = id.group(1)
@@ -74,17 +83,19 @@ class Channel(channel.Channel):
         return False, False
                 
     def play_video(self, datas):
-        import simplejson as json
-        id = datas.get('url')
-        d = json.loads(channel.get_url(self.main_url + '/api/media/video?method=getVideoDetail&args%5B%5D=' + id))['data']
-        try:
-            vurl = d['urls']
-        except:
-            return
-        #title = d['title'] + ' - ' + datetime.fromtimestamp(d['created']).strftime('%d/%m/%Y') + ' - ' + channel.time2str(d.get('duration', ''))
-        #img = 'http://ds.static.rtbf.be' + d['thumbnail']['full']
-        #rating = d['rating']
-        channel.playUrl(vurl)
+        url = datas.get('url')
+        data = channel.get_url(url)
+        regex = r"""src="(http://www.rtbf.be/auvio/embed/media[^"]+)"""
+        iframe_url = re.findall(regex, data)[0]
+        data = channel.get_url(iframe_url)
+        regex = r"""data-media="([^"]+)"""
+        media = re.findall(regex, data)[0]
+        
+        h = HTMLParser.HTMLParser()
+        media_json = h.unescape(media)
+        regex = r""""high":"([^"]+)"""
+        video_url = re.findall(regex, media_json)[0]
+        channel.playUrl(video_url)
     
     def play_live(self, datas):
         url = datas.get('url')
