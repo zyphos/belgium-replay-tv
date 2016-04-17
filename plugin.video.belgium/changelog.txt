@@ -1,3 +1,7 @@
+Version 0.0.23 - 2016-04-17
+Chaines supportees: RTBF
+- Amélioration support RTBF + live à nouveau disponible. Merci à Wilcobxl et à Tche333.
+
 Version 0.0.22 - 2016-04-14
 Chaines supportees: RTBF
 - Réparation partielle de RTBF. La RTBF a lancé son service Auvio (2016-04-13)
