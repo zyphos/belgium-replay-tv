@@ -1,3 +1,7 @@
+Version 0.0.25 - 2016-09-22
+Chaines supportees: RTBF
+- Réparation live. Merci à Dur3x et Wilcobxl.
+
 Version 0.0.24 - 2016-06-30
 Chaines supportees: RTBF
 - Amélioration live. Merci à Wilcobxl.
