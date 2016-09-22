@@ -88,52 +88,32 @@ class Channel(channel.Channel):
             channel.playUrl(freecaster_stream)
         else:
             print "not a freecaster stream"
-            regex = r"""streamUrl&quot;:&quot;([^&]+)"""
-            stream_url = re.search(regex,data)
-            if stream_url is not None:
-                stream_url = stream_url.group(1)
-                stream_url = stream_url.replace("\\", "")
-                print "strange stream" 
-                print "stream url: >" + stream_url + "<"
-                channel.playUrl(stream_url)
+            regex = r"""streamUrlHls&quot;:&quot;([^&]+)"""
+            hls_stream_url = re.search(regex,data)
+            if hls_stream_url is not None:
+                print "HLS stream"
+                stream_url = hls_stream_url.group(1).replace("\\", "")
+                data = channel.get_url(stream_url)
+                best_resolution_path = data.split("\n")[-2]
+                hls_stream_url = stream_url[:stream_url.rfind('open')] + best_resolution_path[5:]
+                print "HLS stream url: >" + hls_stream_url + "<"
+                channel.playUrl(hls_stream_url)
             else:
-                print "normal stream"
-                token_json_data = channel.get_url(self.main_url + '/api/media/streaming?streamname=' + stream_name, referer=page_url)
-                token = token_json_data.split('":"')[1].split('"')[0]
-                swf_url = 'http://static.infomaniak.ch/livetv/playerMain-v4.2.41.swf?sVersion=4%2E2%2E41&sDescription=&bLd=0&sTitle=&autostart=1'
-                rtmp = 'rtmp://rtmp.rtbf.be/livecast'
-                page_url = 'http://www.rtbf.be'
-                play = '%s?%s' % (stream_name, token)
-                rtmp += '/%s swfUrl=%s pageUrl=%s tcUrl=%s' % (play, swf_url, page_url, rtmp)
-                return rtmp
-    
-  
-        """Correct this
-stream=1
-sname=stream7?
-server=rtmp://rtmp.rtbf.be
-dir=livecast
-
-stream=1
-sname=laune?4164b27a0411cdfd4e031a55698d51
-server=rtmp://rtmp.rtbf.be
-dir=livecast
-
-play('stream7?')
-        
-        
-        """    
-
-if __name__ == "__main__":
-    import sys
-    args = sys.argv
-    if len(args) == 2:
-        action = args[1]
-        if action == 'scan_empty':
-            Channel({'channel_id': 'rtbf', 'action': 'scan_empty'})
-        elif action == 'get_lives':
-            Channel({'channel_id': 'rtbf', 'action': 'get_lives'})
-        else:
-            Channel({'channel_id': 'rtbf', 'action': 'show_videos', 'url':args[1]})
-    else:
-        Channel({'channel_id': 'rtbf', 'action': 'show_categories'})
+                regex = r"""streamUrl&quot;:&quot;([^&]+)"""
+                stream_url = re.search(regex,data)
+                if stream_url is not None:
+                    stream_url = stream_url.group(1)
+                    stream_url = stream_url.replace("\\", "")
+                    print "strange stream" 
+                    print "stream url: >" + stream_url + "<"
+                    channel.playUrl(stream_url)
+                else:
+                    print "normal stream"
+                    token_json_data = channel.get_url(self.main_url + '/api/media/streaming?streamname=' + stream_name, referer=page_url)
+                    token = token_json_data.split('":"')[1].split('"')[0]
+                    swf_url = 'http://static.infomaniak.ch/livetv/playerMain-v4.2.41.swf?sVersion=4%2E2%2E41&sDescription=&bLd=0&sTitle=&autostart=1'
+                    rtmp = 'rtmp://rtmp.rtbf.be/livecast'
+                    page_url = 'http://www.rtbf.be'
+                    play = '%s?%s' % (stream_name, token)
+                    rtmp += '/%s swfUrl=%s pageUrl=%s tcUrl=%s' % (play, swf_url, page_url, rtmp)
+                    return rtmp
