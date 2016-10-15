@@ -1,3 +1,8 @@
+Version 0.0.26 - 2016-10-16
+Chaines supportees: RTBF
+- Amélioration de l'accès au video, permet de rechercher par categories ou chaines.
+- La lecture des podcasts audio fonctionne également
+
 Version 0.0.25 - 2016-09-22
 Chaines supportees: RTBF
 - RÃ©paration live. Merci Ã  Dur3x et Wilcobxl.
