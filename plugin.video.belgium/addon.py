@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*- 
+# -*- coding: utf-8 -*- 
 import urllib, os, sys
 
 import channel
@@ -59,7 +59,21 @@ print 'channel_id:', channel_id
 if params.get('action', False) is False:
     show_channels()
 elif channel_id:
-    context = channels[channel_id]
+    try:
+      context = channels[channel_id]
+    except:
+        try:
+           import rtbf 
+           context = rtbf.channelsTV[channel_id]
+        except:
+             try:  
+               context = rtbf.channelsRadio[channel_id]
+             except:
+               try:
+                  context = rtbf.categories[channel_id]
+               except:
+                  context =  rtbf.menu[channel_id]
+                    
     context.update(params)
     import sys
     channel_module_name = context.get('module', channel_id)

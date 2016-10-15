@@ -1,31 +1,122 @@
 #!/usr/bin/env python
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
 import re
 import channel
 import HTMLParser
+from bs4 import BeautifulSoup
 
 id2skip = [str(x) for x in [5683,2913,5614,5688,156]]
+
+menu = {'rtbfTV': {'name': 'TV Channels', 'icon': 'rtbf-all.png','module': 'rtbf','action': 'show_tv'},
+            'rtbfRadio': {'name': 'Radio Channels', 'icon': 'radios.png','module': 'rtbf','action': 'show_radio'},
+            'rtbfAll': {'name': 'All Shows', 'icon': 'rtbf.png','module': 'rtbf','action': 'show_programs'},
+            'rtbfCat': {'name': 'By Categories', 'icon': 'rtbf.png','module': 'rtbf','action': 'show_subcategories'},
+            'rtbfLive': {'name': 'Directs', 'icon': 'rtbf.png','module': 'rtbf','action': 'get_lives'}
+            }
+
+channelsTV = {'laune': {'name': 'La Une', 'icon': 'laune.png','module':'rtbf'},
+            'ladeux': {'name': 'La Deux', 'icon': 'ladeux.png','module':'rtbf'},
+            'latrois': {'name': 'La Trois', 'icon': 'latrois.png','module':'rtbf'},
+            }
+channelsRadio = {'lapremiere': {'name': 'La Première', 'icon': 'lapremiere.png','module':'rtbf'},
+            'vivacite': {'name': 'Vivacité', 'icon': 'vivacite.png','module':'rtbf'},
+            'musiq3': {'name': 'Musiq 3', 'icon': 'musiq3.png','module':'rtbf'},
+            'classic21': {'name': 'Classic 21', 'icon': 'classic21.png','module':'rtbf'},
+            'purefm': {'name': 'Pure FM', 'icon': 'purefm.png','module':'rtbf'},
+            }
+categories = {'35':{'name': 'Series', 'icon': 'rtbf.png','module': 'rtbf'},
+             '36':{'name': 'Films', 'icon': 'rtbf.png','module': 'rtbf'},
+             '1':{'name': 'Info', 'icon': 'rtbf.png','module': 'rtbf'},
+             '9':{'name': 'Sport', 'icon': 'rtbf.png','module': 'rtbf'},
+             '11':{'name': 'Football', 'icon': 'rtbf.png','module': 'rtbf'},
+             '40':{'name': 'Humour', 'icon': 'rtbf.png','module': 'rtbf'},
+             '29':{'name': 'Divertissement', 'icon': 'rtbf.png','module': 'rtbf'},
+             '44':{'name': 'Vie Quotidienne', 'icon': 'rtbf.png','module': 'rtbf'},
+             '31':{'name': 'Documentaire', 'icon': 'rtbf.png','module': 'rtbf'},
+             '18':{'name': 'Culture', 'icon': 'rtbf.png','module': 'rtbf'},
+             '23':{'name': 'Musique', 'icon': 'rtbf.png','module': 'rtbf'},
+             '32':{'name': 'Enfants', 'icon': 'rtbf.png','module': 'rtbf'}
+            }
 
 class Channel(channel.Channel):
     def get_main_url(self):
         return 'https://www.rtbf.be'
     
-    def get_categories(self, skip_empty_id = True):
-        channel.addDir('Directs', 'DefaultVideo.png', channel_id=self.channel_id, action='get_lives')
-        data = channel.get_url(self.main_url + '/auvio/emissions')
-        regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span[^<]+</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
-        for icon, url, name in re.findall(regex, data):
-            id = url.split('?id=')[1]
-            if skip_empty_id and id in id2skip:
-                continue
-            channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+    def categories(self):
+        return categories
+    
+    def get_categories(self):
+        for menu_id, ch in menu.iteritems():
+          if channel.in_xbmc:
+            icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
+            channel.addDir(ch['name'], icon, channel_id=menu_id, action=ch['action'])
+          else:
+            print ch['name'], menu_id, 'show_programs'
+    
+    def get_programs(self, skip_empty_id = True):
+      data = channel.get_url(self.main_url + '/auvio/emissions/')
+      regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span[^<]+</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
+      for icon, url, name in re.findall(regex, data):
+        id = url.split('?id=')[1]
+        if skip_empty_id and id in id2skip:
+          continue
+        channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+
+    def show_tv(self, datas):
+      for channel_id, ch in channelsTV.iteritems():
+        if channel.in_xbmc:
+          icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
+          channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_channel')
+        else:
+          print ch['name'], channel_id, 'show_channel'
+
+    def show_radio(self, datas):
+      for channel_id, ch in channelsRadio.iteritems():
+       if channel.in_xbmc:
+         icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
+         channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_channel')
+       else:
+         print ch['name'], channel_id, 'show_channel'
+                   
+    def get_subcategories(self, datas):
+        for category_id, cat in categories.iteritems():
+           channel.addDir(name=cat['name'], iconimage='DefaultVideo.png', channel_id=category_id, action='show_category')
+
+    def get_category(self, datas):
+            urlName = datas.get('name').replace(' ','-')
+            data = channel.get_url(self.main_url+'/auvio/categorie/'+urlName+'?id='+datas.get('channel_id'))
+            soup = BeautifulSoup(data, 'html.parser')
+            main = soup.main
+            section = main.section
+            articles = section.find_all('article')
+            for article in articles:
+                icons = article.find('img',{'data-srcset':True})['data-srcset']
+                regex = r""",([^,]+?\.(?:jpg|gif|png|jpeg))\s640w"""
+                icon = str(re.findall(regex, icons)[0])
+                container = article.h3
+                url = container.find('a',{'href':True})['href']
+                id = url.split('?id=')[1]
+                name = container.find('a', {'title':True})['title']     
+                channel.addDir(name, icon, channel_id=datas.get('channel_id'), url=url, action='show_videos', id=id)
+    
+    def get_channel(self, datas):
+            data = channel.get_url(self.main_url + '/auvio/emissions/')
+            try:
+                    ch = channelsTV[datas.get('channel_id')]['name']
+            except:
+                    ch = channelsRadio[datas.get('channel_id')]['name']
+            regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span class="rtbf-media-item__channel">([^<]+)*</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
+            for icon, chan, url, name in re.findall(regex, data):
+                    if ch in chan:
+                       id = url.split('?id=')[1]
+                       channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+
 
     def get_lives(self, datas):
         def parse_lives(data):
             regex = r""",([^,]+?\.(?:jpg|gif|png|jpeg))\s648w"[^/]*/>(?s).*?"rtbf-media-item__title">\s*<a href="([^"]+)"\s*title="([^"]+)"""
             for icon, url, name in re.findall(regex, data, flags=re.DOTALL):
-                print "found"
                 vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_live')
                 channel.addLink(name.replace('&#039;', "'").replace('&#034;', '"') , vurl, icon) # + ' - ' + date
         live_url = self.main_url + '/auvio/direct/'
@@ -35,12 +126,17 @@ class Channel(channel.Channel):
     
     def get_videos(self, datas):
         url = datas.get('url')
+        print datas.get('url')
         data = channel.get_url(url)
-        regex = r""">([^<]+)</time>\s*\n\s*<h3[^<]*<a href="([^"]+)"[^>]*>([^<]+)</a></h3>"""
-        for date, url, title in re.findall(regex, data):
-            title = title + ' - ' + date
-            vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
-            channel.addLink(title.replace('&#039;', "'").replace('&#034;', '"'), vurl, None)
+        soup = BeautifulSoup(data)
+        sections = soup.find_all('section',{'class':True,'id':True})
+        for section in sections:
+          if section['id']!='widget-ml-avoiraussi-':
+             regex = r""">([^<]+)</time>\s*\n\s*<h3[^<]*<a href="([^"]+)"[^>]*>([^<]+)</a></h3>"""
+             for date, url, title in re.findall(regex, str(section)):
+                title = title + ' - ' + date
+                vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
+                channel.addLink(title.replace('&#039;', "'").replace('&#034;', '"'), vurl, None)
     
    
                 
@@ -52,11 +148,16 @@ class Channel(channel.Channel):
         data = channel.get_url(iframe_url)
         regex = r"""data-media="([^"]+)"""
         media = re.findall(regex, data)[0]
-        
         h = HTMLParser.HTMLParser()
         media_json = h.unescape(media)
         regex = r""""high":"([^"]+)"""
-        video_url = re.findall(regex, media_json)[0]
+        all_url = re.findall(regex, media_json)
+        if len(all_url) > 0:
+          video_url = all_url[0]
+        else:
+            regex = r"""url&quot;:&quot;([^&]+)"""
+            iframe_url = re.findall(regex, data)[0]
+            video_url = iframe_url.replace("\\", "")     
         channel.playUrl(video_url)
 
 
@@ -65,7 +166,9 @@ class Channel(channel.Channel):
         data = channel.get_url(url)
         regex = r"""src="(https://www.rtbf.be/auvio/embed/direct[^"]+)"""
         iframe_url = re.findall(regex, data)[0]
+        print iframe_url
         rtmp = self.get_live_rtmp(iframe_url)
+        print rtmp
         channel.playUrl(rtmp)
 
 
@@ -93,9 +196,11 @@ class Channel(channel.Channel):
             if hls_stream_url is not None:
                 print "HLS stream"
                 stream_url = hls_stream_url.group(1).replace("\\", "")
+                print stream_url
                 data = channel.get_url(stream_url)
                 best_resolution_path = data.split("\n")[-2]
-                hls_stream_url = stream_url[:stream_url.rfind('open')] + best_resolution_path[5:]
+                print best_resolution_path
+                hls_stream_url = stream_url[:stream_url.rfind('open')] + best_resolution_path[6:]
                 print "HLS stream url: >" + hls_stream_url + "<"
                 channel.playUrl(hls_stream_url)
             else:
