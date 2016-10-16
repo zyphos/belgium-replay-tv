@@ -126,7 +126,6 @@ class Channel(channel.Channel):
     
     def get_videos(self, datas):
         url = datas.get('url')
-        print datas.get('url')
         data = channel.get_url(url)
         soup = BeautifulSoup(data)
         sections = soup.find_all('section',{'class':True,'id':True})
@@ -166,9 +165,7 @@ class Channel(channel.Channel):
         data = channel.get_url(url)
         regex = r"""src="(https://www.rtbf.be/auvio/embed/direct[^"]+)"""
         iframe_url = re.findall(regex, data)[0]
-        print iframe_url
         rtmp = self.get_live_rtmp(iframe_url)
-        print rtmp
         channel.playUrl(rtmp)
 
 
@@ -196,10 +193,8 @@ class Channel(channel.Channel):
             if hls_stream_url is not None:
                 print "HLS stream"
                 stream_url = hls_stream_url.group(1).replace("\\", "")
-                print stream_url
                 data = channel.get_url(stream_url)
                 best_resolution_path = data.split("\n")[-2]
-                print best_resolution_path
                 hls_stream_url = stream_url[:stream_url.rfind('open')] + best_resolution_path[6:]
                 print "HLS stream url: >" + hls_stream_url + "<"
                 channel.playUrl(hls_stream_url)
