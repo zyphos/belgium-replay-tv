@@ -84,33 +84,33 @@ class Channel(channel.Channel):
             channel.addDir(name=cat['name'], iconimage='DefaultVideo.png', channel_id=category_id, action='show_category')
 
     def get_category(self, datas):
-            urlName = datas.get('name').replace(' ','-')
-            data = channel.get_url(self.main_url+'/auvio/categorie/'+urlName+'?id='+datas.get('channel_id'))
-            soup = BeautifulSoup(data, 'html.parser')
-            main = soup.main
-            section = main.section
-            articles = section.find_all('article')
-            for article in articles:
-                icons = article.find('img',{'data-srcset':True})['data-srcset']
-                regex = r""",([^,]+?\.(?:jpg|gif|png|jpeg))\s640w"""
-                icon = str(re.findall(regex, icons)[0])
-                container = article.h3
-                url = container.find('a',{'href':True})['href']
-                id = url.split('?id=')[1]
-                name = container.find('a', {'title':True})['title']     
-                channel.addDir(name, icon, channel_id=datas.get('channel_id'), url=url, action='show_videos', id=id)
-    
+        urlName = datas.get('name').replace(' ','-')
+        data = channel.get_url(self.main_url+'/auvio/categorie/'+urlName+'?id='+datas.get('channel_id'))
+        soup = BeautifulSoup(data, 'html.parser')
+        main = soup.main
+        section = main.section
+        articles = section.find_all('article')
+        for article in articles:
+            icons = article.find('img',{'data-srcset':True})['data-srcset']
+            regex = r""",([^,]+?\.(?:jpg|gif|png|jpeg))\s640w"""
+            icon = str(re.findall(regex, icons)[0])
+            container = article.h3
+            url = container.find('a',{'href':True})['href']
+            id = url.split('?id=')[1]
+            name = container.find('a', {'title':True})['title']     
+            channel.addDir(name, icon, channel_id=datas.get('channel_id'), url=url, action='show_videos', id=id)
+
     def get_channel(self, datas):
-            data = channel.get_url(self.main_url + '/auvio/emissions/')
-            try:
-                    ch = channelsTV[datas.get('channel_id')]['name']
-            except:
-                    ch = channelsRadio[datas.get('channel_id')]['name']
-            regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span class="rtbf-media-item__channel">([^<]+)*</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
-            for icon, chan, url, name in re.findall(regex, data):
-                    if ch in chan:
-                       id = url.split('?id=')[1]
-                       channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+        data = channel.get_url(self.main_url + '/auvio/emissions/')
+        try:
+            ch = channelsTV[datas.get('channel_id')]['name']
+        except:
+            ch = channelsRadio[datas.get('channel_id')]['name']
+        regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span class="rtbf-media-item__channel">([^<]+)*</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
+        for icon, chan, url, name in re.findall(regex, data):
+            if ch in chan:
+                id = url.split('?id=')[1]
+                channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
 
 
     def get_lives(self, datas):
@@ -130,13 +130,13 @@ class Channel(channel.Channel):
         soup = BeautifulSoup(data)
         sections = soup.find_all('section',{'class':True,'id':True})
         for section in sections:
-          if section['id']!='widget-ml-avoiraussi-':
-             regex = r""">([^<]+)</time>\s*\n\s*<h3[^<]*<a href="([^"]+)"[^>]*>([^<]+)</a></h3>"""
-             for date, url, title in re.findall(regex, str(section)):
+            if section['id']=='widget-ml-avoiraussi-':
+                continue
+            regex = r""">([^<]+)</time>\s*\n\s*<h3[^<]*<a href="([^"]+)"[^>]*>([^<]+)</a></h3>"""
+            for date, url, title in re.findall(regex, str(section)):
                 title = title + ' - ' + date
                 vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
                 channel.addLink(title.replace('&#039;', "'").replace('&#034;', '"'), vurl, None)
-    
    
                 
     def play_video(self, datas):
