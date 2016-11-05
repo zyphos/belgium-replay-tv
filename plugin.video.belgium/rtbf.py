@@ -8,10 +8,10 @@ from bs4 import BeautifulSoup
 
 id2skip = [str(x) for x in [5683,2913,5614,5688,156]] # Empty program
 
-menu = {'rtbfTV': {'name': 'TV Channels', 'icon': 'rtbf-all.png','module': 'rtbf','action': 'show_tv'},
-            'rtbfRadio': {'name': 'Radio Channels', 'icon': 'radios.png','module': 'rtbf','action': 'show_radio'},
-            'rtbfAll': {'name': 'All Shows', 'icon': 'rtbf.png','module': 'rtbf','action': 'show_programs'},
-            'rtbfCat': {'name': 'By Categories', 'icon': 'rtbf.png','module': 'rtbf','action': 'show_subcategories'},
+menu = {'rtbfTV': {'name': 'Chaînes TV', 'icon': 'rtbf-all.png','module': 'rtbf','action': 'show_tv'},
+            'rtbfRadio': {'name': 'Chaînes radios', 'icon': 'radios.png','module': 'rtbf','action': 'show_radio'},
+            'rtbfAll': {'name': 'Toutes les émissions', 'icon': 'rtbf.png','module': 'rtbf','action': 'show_programs'},
+            'rtbfCat': {'name': 'Par catégories', 'icon': 'rtbf.png','module': 'rtbf','action': 'show_subcategories'},
             'rtbfLive': {'name': 'Directs', 'icon': 'rtbf.png','module': 'rtbf','action': 'get_lives'}
             }
 
