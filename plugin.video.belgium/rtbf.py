@@ -126,14 +126,25 @@ class Channel(channel.Channel):
     
     def get_videos(self, datas):
         url = datas.get('url')
+        print 'get_videos url:', url
         data = channel.get_url(url)
+        print 'After get_url [%s]' % len(data)
         soup = BeautifulSoup(data)
+        print 'soup'
         sections = soup.find_all('section',{'class':True,'id':True})
+        print 'soup find all'
         for section in sections:
+            print '--section--'
             if section['id']=='widget-ml-avoiraussi-':
                 continue
+            print '--section 2--'
             regex = r""">([^<]+)</time>\s*\n\s*<h3[^<]*<a href="([^"]+)"[^>]*>([^<]+)</a></h3>"""
-            for date, url, title in re.findall(regex, str(section)):
+            try:
+                results = re.findall(regex, str(section))
+            except:
+                continue
+            print '--section 3--'
+            for date, url, title in results:
                 title = title + ' - ' + date
                 vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
                 channel.addLink(title.replace('&#039;', "'").replace('&#034;', '"'), vurl, None)
