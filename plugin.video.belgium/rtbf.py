@@ -6,7 +6,7 @@ import channel
 import HTMLParser
 from bs4 import BeautifulSoup
 
-id2skip = [str(x) for x in [5683,2913,5614,5688,156]]
+id2skip = [str(x) for x in [5683,2913,5614,5688,156]] # Empty program
 
 menu = {'rtbfTV': {'name': 'TV Channels', 'icon': 'rtbf-all.png','module': 'rtbf','action': 'show_tv'},
             'rtbfRadio': {'name': 'Radio Channels', 'icon': 'radios.png','module': 'rtbf','action': 'show_radio'},
