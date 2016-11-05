@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
 import urllib, urllib2, re, os, sys
 from htmlentitydefs import name2codepoint
@@ -72,7 +72,7 @@ def addLink(name, url, iconimage, **kwargs):
     ok = True
     liz = xbmcgui.ListItem(name, iconImage='DefaultVideo.png', thumbnailImage=iconimage)
     liz.setInfo(type='Video', infoLabels=kwargs)
-    liz.setProperty('IsPlayable', 'true')
+    liz.setProperty('IsPlayable', 'True')
     ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=liz)
     return ok
 
@@ -105,7 +105,8 @@ def playUrl(url):
         return True
     liz = xbmcgui.ListItem(path=url)
     return xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=liz)
-    
+
+
 class Channel(object):
     def __init__(self, context):
         self.channel_id = context.get('channel_id')
@@ -133,6 +134,18 @@ class Channel(object):
             self.play_live(context)
         elif action == 'scan_empty':
             self.scan_empty(context)
+        elif action == 'show_programs':
+            self.get_programs(context)
+        elif action == 'show_tv':
+            self.show_tv(context)
+        elif action == 'show_radio':
+            self.show_radio(context)
+        elif action == 'show_program':
+            self.get_programs(context)
+        elif action == 'show_category':
+            self.get_category(context)
+        elif action == 'show_channel':
+            self.get_channel(context)
             
     def set_main_url(self):
         return ''
@@ -180,3 +193,21 @@ class Channel(object):
             cat_done.append(cat['id'])
             print 'done: ' + ','.join(cat_done)
             print 'id2skip: ' + ','.join(new_id2skip)
+    
+    def get_programs(self,datas):
+      pass
+    
+    def show_tv(self,datas):
+        pass
+    
+    def show_radio(self,datas):
+        pass
+    
+    def get_programs(self,datas):
+        pass
+    
+    def get_category(self,datas):
+        pass
+    
+    def get_channel(self,datas):
+        pass
