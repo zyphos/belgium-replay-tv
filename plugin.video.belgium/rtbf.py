@@ -48,40 +48,40 @@ class Channel(channel.Channel):
     
     def get_categories(self):
         for menu_id, ch in menu.iteritems():
-          if channel.in_xbmc:
-            icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
-            channel.addDir(ch['name'], icon, channel_id=menu_id, action=ch['action'])
-          else:
-            print ch['name'], menu_id, 'show_programs'
+            if channel.in_xbmc:
+                icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
+                channel.addDir(ch['name'], icon, channel_id=menu_id, action=ch['action'])
+            else:
+                print ch['name'], menu_id, 'show_programs'
     
-    def get_programs(self, skip_empty_id = True):
-      data = channel.get_url(self.main_url + '/auvio/emissions/')
-      regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span[^<]+</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
-      for icon, url, name in re.findall(regex, data):
-        id = url.split('?id=')[1]
-        if skip_empty_id and id in id2skip:
-          continue
-        channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+    def get_programs(self, skip_empty_id=True):
+        data = channel.get_url(self.main_url + '/auvio/emissions/')
+        regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span[^<]+</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
+        for icon, url, name in re.findall(regex, data):
+            id = url.split('?id=')[1]
+            if skip_empty_id and id in id2skip:
+                continue
+            channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
 
     def show_tv(self, datas):
-      for channel_id, ch in channelsTV.iteritems():
-        if channel.in_xbmc:
-          icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
-          channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_channel')
-        else:
-          print ch['name'], channel_id, 'show_channel'
+        for channel_id, ch in channelsTV.iteritems():
+            if channel.in_xbmc:
+                icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
+                channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_channel')
+            else:
+                print ch['name'], channel_id, 'show_channel'
 
     def show_radio(self, datas):
-      for channel_id, ch in channelsRadio.iteritems():
-       if channel.in_xbmc:
-         icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
-         channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_channel')
-       else:
-         print ch['name'], channel_id, 'show_channel'
+        for channel_id, ch in channelsRadio.iteritems():
+            if channel.in_xbmc:
+                icon = channel.xbmc.translatePath(channel.os.path.join(channel.home, 'resources/' + ch['icon']))
+                channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_channel')
+            else:
+                print ch['name'], channel_id, 'show_channel'
                    
     def get_subcategories(self, datas):
         for category_id, cat in categories.iteritems():
-           channel.addDir(name=cat['name'], iconimage='DefaultVideo.png', channel_id=category_id, action='show_category')
+            channel.addDir(name=cat['name'], iconimage='DefaultVideo.png', channel_id=category_id, action='show_category')
 
     def get_category(self, datas):
             urlName = datas.get('name').replace(' ','-')
