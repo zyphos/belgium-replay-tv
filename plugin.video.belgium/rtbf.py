@@ -14,7 +14,7 @@ class Channel(channel.Channel):
     def get_categories(self, skip_empty_id = True):
         channel.addDir('Directs', 'DefaultVideo.png', channel_id=self.channel_id, action='get_lives')
         data = channel.get_url(self.main_url + '/auvio/emissions')
-        regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<span[^<]+</span>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
+        regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
         for icon, url, name in re.findall(regex, data):
             id = url.split('?id=')[1]
             if skip_empty_id and id in id2skip:
@@ -36,7 +36,7 @@ class Channel(channel.Channel):
     def get_videos(self, datas):
         url = datas.get('url')
         data = channel.get_url(url)
-        regex = r""">([^<]+)</time>\s*\n\s*<h3[^<]*<a href="([^"]+)"[^>]*>([^<]+)</a></h3>"""
+        regex = r""">([^<]+)</time>\s*\n\s*</aside>\s*\n\s*<a href="([^"]+)"[^>]*title="([^<"]+)"[^>]*></a>"""
         for date, url, title in re.findall(regex, data):
             title = title + ' - ' + date
             vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
