@@ -5,21 +5,30 @@ import re
 import channel
 import HTMLParser
 
-id2skip = [str(x) for x in [5683,2913,5614,5688,156]]
+id2skip = []
 
 class Channel(channel.Channel):
     def get_main_url(self):
         return 'https://www.rtbf.be'
     
-    def get_categories(self, skip_empty_id = True):
+    def get_categories(self, skip_empty_id = True, return_result=False):
         channel.addDir('Directs', 'DefaultVideo.png', channel_id=self.channel_id, action='get_lives')
         data = channel.get_url(self.main_url + '/auvio/emissions')
-        regex = r""",([^\,]+-original.(?:jpg|gif|png|jpeg))[^/]*/>\s*\n\s*</div>\s*\n\s*</figure>\s*\n\s*<header[^>]+>\s*\n\s*<a href="([^"]+)"\s*>\s*\n\s*<h4[^>]+>([^<]+)"""
+        regex = r"""data-srcset="([^ ]+)[^"]+"\s*/>\s*</div>\s*</figure>\s*<header[^>]+>\s*<a\s+href="([^"]+)[^>]+>\s*<h4[^>]*>([^<]+)"""
+        result = []
         for icon, url, name in re.findall(regex, data):
             id = url.split('?id=')[1]
             if skip_empty_id and id in id2skip:
                 continue
             channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos', id=id)
+            if return_result:
+                result.append({'name': name,
+                               'icon': icon,
+                               'channel_id': self.channel_id,
+                               'url': url,
+                               'action': 'show_videos',
+                               'id': id})
+        return result
 
     def get_lives(self, datas):
         def parse_lives(data):
@@ -33,16 +42,24 @@ class Channel(channel.Channel):
         parse_lives(data)
 
     
-    def get_videos(self, datas):
+    def get_videos(self, datas, return_result=False):
         url = datas.get('url')
         data = channel.get_url(url)
         regex = r""">([^<]+)</time>\s*\n\s*</aside>\s*\n\s*<a href="([^"]+)"[^>]*title="([^<"]+)"[^>]*></a>"""
+        result = []
         for date, url, title in re.findall(regex, data):
+            if title[0] == '{': # Ignore {{title}} - {{date.short}}
+                continue
             title = title + ' - ' + date
             vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
-            channel.addLink(title.replace('&#039;', "'").replace('&#034;', '"'), vurl, None)
-    
-   
+            title = title.replace('&#039;', "'").replace('&#034;', '"')
+            channel.addLink(title, vurl, None)
+            if return_result:
+                result.append({'name': title,
+                               'channel_id': self.channel_id,
+                               'url': url,
+                               'action': 'play_video'})
+        return result
                 
     def play_video(self, datas):
         url = datas.get('url')
