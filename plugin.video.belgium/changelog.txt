@@ -1,3 +1,7 @@
+Version 0.0.27 - 2017-03-13
+Chaines supportees: RTBF
+- Réparation RTBF + Regex plus robuste.
+
 Version 0.0.26 - 2017-03-04
 Chaines supportees: RTBF
 - Réparation RTBF. Merci à thbjacobs.
