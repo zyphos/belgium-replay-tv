@@ -134,3 +134,31 @@ class Channel(channel.Channel):
                     play = '%s?%s' % (stream_name, token)
                     rtmp += '/%s swfUrl=%s pageUrl=%s tcUrl=%s' % (play, swf_url, page_url, rtmp)
                     return rtmp
+    
+    def generate_id2skip(self):
+        id2skip = []
+        print 'Generating ID 2 skip...'
+        print 'Retrieving categories...'
+        categories = self.get_categories(skip_empty_id=False, return_result=True)
+        nb_cat = len(categories) - 1 
+        i = 0
+        if nb_cat == 0:
+            raise Exception('Error: no categories found !')
+        for category in categories[1:]: # Skip direct
+            i += 1
+            print 'Retrieving videos %s/%s: %s' % (i, nb_cat, category['name'])
+            videos = self.get_videos(category, return_result=True)
+            if not videos:
+                id2skip.append(category['id'])
+            if i == 10 and len(id2skip) == i:
+                raise Exception('Error: no videos found !')
+
+        if len(id2skip) == nb_cat:
+            raise Exception('Error: no videos found !')
+        return id2skip
+
+if __name__ == "__main__":
+    import sys
+    ch = Channel({'action': 'test', 'channel_id':'rtbf'})
+    id2skip = ch.generate_id2skip()
+    print 'id2skip =', id2skip
