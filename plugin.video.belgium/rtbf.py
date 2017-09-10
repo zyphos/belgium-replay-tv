@@ -5,6 +5,8 @@ import re
 import channel
 import HTMLParser
 
+import xbmcaddon
+
 id2skip = []
 
 class Channel(channel.Channel):
@@ -73,7 +75,12 @@ class Channel(channel.Channel):
         
         h = HTMLParser.HTMLParser()
         media_json = h.unescape(media)
-        regex = r""""high":"([^"]+)"""
+        qualities = {'720p': 'high',
+                     '480p': 'web',
+                     '234p': 'mobile'}
+        addon = xbmcaddon.Addon()
+        setting_quality = addon.getSetting('rtbf_quality')
+        regex = r""""%s":"([^"]+)""" % (qualities[setting_quality])
         video_url = re.findall(regex, media_json)[0]
         channel.playUrl(video_url)
 

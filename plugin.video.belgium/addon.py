@@ -23,6 +23,7 @@ def show_channels():
             channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_categories')
         else:
             print ch['name'], channel_id, 'show_categories'
+    channel.addDir('Settings', None, action='settings')
      
 def get_params():
     param = {}
@@ -54,10 +55,17 @@ print
 
 params = get_params()
 
+action = params.get('action', False)
 channel_id = params.get('channel_id')
 print 'channel_id:', channel_id
-if params.get('action', False) is False:
+
+if action is False:
     show_channels()
+    channel.xbmcplugin.endOfDirectory(int(sys.argv[1]))
+elif action == 'settings':
+    import xbmcaddon
+    addon = xbmcaddon.Addon()
+    addon.openSettings()
 elif channel_id:
     context = channels[channel_id]
     context.update(params)
@@ -65,6 +73,4 @@ elif channel_id:
     channel_module_name = context.get('module', channel_id)
     __import__(channel_module_name)
     sys.modules[channel_module_name].Channel(context)
-
-if channel.in_xbmc:
-    channel.xbmcplugin.endOfDirectory(int(sys.argv[1]))				
+    channel.xbmcplugin.endOfDirectory(int(sys.argv[1]))
