@@ -1,3 +1,8 @@
+Version 0.0.29 - 2017-09-11
+Chaines supportees: RTBF
+- Ajout du choix de qualité des vidéos RTBF (Settings)
+- Ajout de l'historique des catégories des dernières vidéos vues. (History)
+
 Version 0.0.28 - 2017-04-13
 Chaines supportees: RTBF
 - Réparation RTBF. Merci à sabras75.
