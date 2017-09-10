@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 
-import urllib, urllib2, re, os, sys
+import urllib
+import urllib2
+import re
+import os
+import os.path
+import sys
+import pickle
 from htmlentitydefs import name2codepoint
 
 try:
     import xbmcplugin, xbmcgui, xbmcaddon, xbmc
     in_xbmc = True
-    __settings__ = xbmcaddon.Addon(id='plugin.video.belgium')
-    __language__ = __settings__.getLocalizedString
-    home = __settings__.getAddonInfo('path')
+    addon = xbmcaddon.Addon(id='plugin.video.belgium')
+    home = addon.getAddonInfo('path')
+    userdata_path = xbmc.translatePath(addon.getAddonInfo('profile') ).decode("utf-8")
+    print 
 except:
     in_xbmc = False 
 
@@ -84,6 +91,7 @@ def array2url(**args):
 
 def addDir(name, iconimage, **args):
     name = name.replace('&#039;', "'").replace('&#034;', '"')
+    args['name'] = name
     u = array2url(**args)
     if not in_xbmc:
         print 'Title: [' + name + ']'
@@ -105,6 +113,57 @@ def playUrl(url):
         return True
     liz = xbmcgui.ListItem(path=url)
     return xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=liz)
+
+class History(object):
+    """Store last 10 channel and category you view video
+    history = [('channel_id','category_name', 'category_url')]
+    """
+    def __init__(self):
+        self.filename = userdata_path + 'history.dump'
+    
+    def update(self, context):
+        if 'category_id' not in context or 'category_url' not in context or 'category_name' not in context:
+            return 
+        channel_id = context['channel_id']
+        category_id = context['category_id']
+        category_name = context['category_name']
+        category_url = context['category_url']
+        
+        categories = self._read()
+        # 1. check if already set
+        pos = None
+        for i, category in enumerate(categories):
+            c_channel_id, c_id, c_name, c_url = category
+            if c_channel_id == channel_id and c_id == category_id:
+                pos = i
+                break
+        if pos is None:
+            # Not found, add it
+            categories.insert(0, (channel_id, category_id, category_name, category_url))
+            categories = categories[:10] # Limit to 10
+            self._write(categories)
+        elif pos != 0: # 0 = nothing to do
+            categories.insert(0, categories.pop(pos))
+            self._write(categories)
+
+    def show(self, channels):
+        categories = self._read()
+        for channel_id, category_id, category_name, category_url in categories:
+            iconimage = None
+            channel_name = channels[channel_id]['name']
+            addDir('%s - %s' % (channel_name, category_name), iconimage, channel_id=channel_id, url=category_url, action='show_videos', id=category_id)
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    
+    def _read(self):
+        if not os.path.isfile(self.filename):
+            return []
+        with open(self.filename, 'r') as f:
+            categories = pickle.load(f)
+        return categories
+    
+    def _write(self, categories):
+        with open(self.filename, 'w') as f:
+            pickle.dump(categories, f)
     
 class Channel(object):
     def __init__(self, context):
@@ -126,6 +185,7 @@ class Channel(object):
         elif action == 'show_videos':
             self.get_videos(context)
         elif action == 'play_video':
+            History().update(context)
             self.play_video(context)
         elif action == 'get_lives':
             self.get_lives(context)

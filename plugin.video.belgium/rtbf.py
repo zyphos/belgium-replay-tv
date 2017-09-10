@@ -46,15 +46,17 @@ class Channel(channel.Channel):
 
     
     def get_videos(self, datas, return_result=False):
-        url = datas.get('url')
-        data = channel.get_url(url)
+        category_url = datas.get('url')
+        category_name = datas.get('name')
+        category_id = datas.get('id')
+        data = channel.get_url(category_url)
         regex = r""">([^<]+)</time>\s*\n\s*</aside>\s*\n\s*<a href="([^"]+)"[^>]*title="([^<"]+)"[^>]*></a>"""
         result = []
         for date, url, title in re.findall(regex, data):
             if title[0] == '{': # Ignore {{title}} - {{date.short}}
                 continue
             title = title + ' - ' + date
-            vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video')
+            vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video', category_id=category_id, category_url=category_url, category_name=category_name)
             title = title.replace('&#039;', "'").replace('&#034;', '"')
             channel.addLink(title, vurl, None)
             if return_result:
