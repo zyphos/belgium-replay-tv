@@ -7,18 +7,22 @@ import channel
     
     #icon = xbmc.translatePath(os.path.join(__home__, 'resources/rtl-tvi.png'))
 
-channels = {'rtltvi': {'name': 'RTL-TVI (Broken)', 'icon': 'rtl-tvi.png', 'module': 'rtl'},
-            'clubrtl': {'name': 'Club RTL (Broken)', 'icon': 'club-rtl.png', 'module': 'rtl'},
-            'plugrtl': {'name': 'Plug RTL (Broken)', 'icon': 'plug-rtl.png', 'module': 'rtl'},
+channels = {#'rtltvi': {'name': 'RTL-TVI (Broken)', 'icon': 'rtl-tvi.png', 'module': 'rtl'},
+            #'clubrtl': {'name': 'Club RTL (Broken)', 'icon': 'club-rtl.png', 'module': 'rtl'},
+            #'plugrtl': {'name': 'Plug RTL (Broken)', 'icon': 'plug-rtl.png', 'module': 'rtl'},
             'rtbf': {'name': 'RTBF', 'icon': 'rtbf-all.png'},
-            'tvcom': {'name': 'TV Com (Broken)', 'icon': 'tvcom.jpg'},
-            'vtm': {'name': 'VTM (Broken)', 'icon': 'vtm.jpg'},
-            'een': {'name': 'EEn (Broken)', 'icon': 'een.png'},
+            'bx1': {'name': 'BX1', 'icon': 'bx1.jpg'},
+            'tvcom': {'name': 'TV Com', 'icon': 'tvcom.jpg'},
+            #'vtm': {'name': 'VTM (Broken)', 'icon': 'vtm.jpg'},
+            #'een': {'name': 'EEn (Broken)', 'icon': 'een.png'},
             }
 
 def show_channels():
     channel.addDir('History', None, action='history')
-    for channel_id, ch in channels.iteritems():
+    channel_ids = channels.keys()
+    channel_ids.sort()
+    for channel_id in channel_ids:
+        ch = channels[channel_id]
         if channel.in_xbmc:
             icon = xbmc.translatePath(os.path.join(channel.home, 'resources/' + ch['icon']))
             channel.addDir(ch['name'], icon, channel_id=channel_id, action='show_categories')

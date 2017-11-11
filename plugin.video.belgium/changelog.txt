@@ -1,3 +1,9 @@
+Version 0.0.30 - 2017-11-11
+Chaines supportees: RTBF, Tv Com, Bx1
+- Réparation de la liste des catégories RTBF.
+- Ré-activation de TV Com
+- Ajout de Bx1
+
 Version 0.0.29 - 2017-09-11
 Chaines supportees: RTBF
 - Ajout du choix de qualité des vidéos RTBF (Settings)

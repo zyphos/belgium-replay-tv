@@ -9,32 +9,30 @@ class Channel(channel.Channel):
         return 'http://www.tvcom.be'
     
     def get_categories(self):
-        data = channel.get_url(self.main_url)
-        regex = r"""missions(.+?)</ul"""
-        res = re.findall(regex, data)
-        if not res:
-            return
-        cat_data = res[0]
-        regex = r"""<a href="([^"]+)"><span>([^<]+)"""
-        for url, name in re.findall(regex, cat_data):
-            channel.addDir(name, self.icon, channel_id=self.channel_id, url=url, action='show_videos')
+        data = channel.get_url('%s/emissions' % self.main_url)
+        regex = r"""<a\s+href="\.([^"]+)">\s+<img src="([^"]+)[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<h3>([^<]+)"""
+        for url, img, name in re.findall(regex, data):
+            icon = self.main_url + img
+            channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos')
 
     def get_videos(self, datas):
+        # TODO: handle multi page
         url = datas.get('url')
         data = channel.get_url(self.main_url + url)
-        regex = r"""class="contentheading"[^>]+>([^<]+)</td>\s+</tr>\s+</table>\s+<table[^>]+>\s+<tr>\s+<td[^>]+>\s+<p><a href="([^"]+)[^>]+><img.+? src="([^"]+)"""
-        for title, vurl, img in re.findall(regex, data):
+        
+        regex = r"""<a\s+href="([^"]+)"\s*>\s+<img[^s]+src="([^"]+)"\s+alt="([^"]+)"""
+        for vurl, img, title in re.findall(regex, data):
             title = title.strip()
             vurl = channel.array2url(channel_id=self.channel_id, url=vurl, action='play_video')
-            channel.addLink(title, vurl, self.main_url + img)
+            channel.addLink(title, vurl, img)
     
     def play_video(self, datas):
         url = datas.get('url')
-        video_page_url = self.main_url + url
+        video_page_url = url
         data = channel.get_url(video_page_url)
-        regex = r"""(http://www.tvcom.be/videos/.+?\.mp4)"""
+        regex = r"""/([^/]+.mp4)/"""
         video_url = re.findall(regex, data)[0]
-        video_url = video_url.replace(' ', '%20')
+        video_url = "http://wowza.imust.org/srv/vod/tvcom/%s" % video_url
         channel.playUrl(video_url)
 
 if __name__ == "__main__":
