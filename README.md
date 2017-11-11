@@ -2,13 +2,14 @@
 Belgium Replay TV addons for Kodi (XBMC)
 
 It support those belgian TV channels for now:
-- RTBF (partially)
+- Bx1
+- RTBF (no direct)
+- Tv Com
 
 Other channels are broken at this time:
 - RTL-TVI
 - CLUB RTL
 - PLUG RTL
-- Tv Com
 - VTM
 - EEN
 
