@@ -12,7 +12,7 @@ class Channel(channel.Channel):
         data = channel.get_url('%s/emissions' % self.main_url)
         regex = r"""<a\s+href="\.([^"]+)">\s+<img src="([^"]+)[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<h3>([^<]+)"""
         for url, img, name in re.findall(regex, data):
-            icon = self.main_url + img
+            icon = self.main_url + '/' + img
             channel.addDir(name, icon, channel_id=self.channel_id, url=url, action='show_videos')
 
     def get_videos(self, datas):
@@ -23,6 +23,10 @@ class Channel(channel.Channel):
         regex = r"""<a\s+href="([^"]+)"\s*>\s+<img[^s]+src="([^"]+)"\s+alt="([^"]+)"""
         for vurl, img, title in re.findall(regex, data):
             title = title.strip()
+            if title[:5] == 'TVCOM':
+                continue
+            if title[:4] == 'test':
+                title = title[4:]
             vurl = channel.array2url(channel_id=self.channel_id, url=vurl, action='play_video')
             channel.addLink(title, vurl, img)
     
@@ -30,9 +34,8 @@ class Channel(channel.Channel):
         url = datas.get('url')
         video_page_url = url
         data = channel.get_url(video_page_url)
-        regex = r"""/([^/]+.mp4)/"""
+        regex = r"""https://static\.tvcom\.be/videos/[^.]+\.mp4"""
         video_url = re.findall(regex, data)[0]
-        video_url = "http://wowza.imust.org/srv/vod/tvcom/%s" % video_url
         channel.playUrl(video_url)
 
 if __name__ == "__main__":
