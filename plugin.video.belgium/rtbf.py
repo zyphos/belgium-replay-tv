@@ -69,7 +69,7 @@ class Channel(channel.Channel):
     def play_video(self, datas):
         url = datas.get('url')
         data = channel.get_url(url)
-        regex = r"""src="(https://www.rtbf.be/auvio/embed/media[^"]+)"""
+        regex = r"""src="(https://www.rtbf.be/auvio/embed/internal/media[^"]+)"""
         iframe_url = re.findall(regex, data)[0]
         data = channel.get_url(iframe_url)
         regex = r"""data-media="([^"]+)"""
