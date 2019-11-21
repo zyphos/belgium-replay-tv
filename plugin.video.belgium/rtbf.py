@@ -4,6 +4,7 @@
 import re
 import channel
 import HTMLParser
+import json
 
 import xbmcaddon
 
@@ -20,6 +21,8 @@ class Channel(channel.Channel):
         result = []
         icon = None
         for url, name in re.findall(regex, data):
+            if name and name[0] == '#':
+                continue
             id = url.split('?id=')[1]
             if skip_empty_id and id in id2skip:
                 continue
@@ -50,17 +53,22 @@ class Channel(channel.Channel):
         category_name = datas.get('name')
         category_id = datas.get('id')
         data = channel.get_url(category_url)
-        regex = r""">([^<]+)</time>\s*\n\s*</aside>\s*\n\s*<a href="([^"]+)"[^>]*title="([^<"]+)"[^>]*></a>"""
+        regex = r"""data-card="([^"]+)"""
         result = []
-        for date, url, title in re.findall(regex, data):
-            if title[0] == '{': # Ignore {{title}} - {{date.short}}
-                continue
-            title = title + ' - ' + date
+        h = HTMLParser.HTMLParser()
+        for data_card in re.findall(regex, data):
+            data_card_json = h.unescape(data_card)
+            data_card_dict = json.loads(data_card_json)
+            date = '/'.join(data_card_dict['date']['full'][:10].split('-')[::-1])
+            title = data_card_dict['title']
+            full_title = title + ' - ' + date
+            img = data_card_dict['illustration'].get('format770',None)
+            url = data_card_dict['url']
             vurl = channel.array2url(channel_id=self.channel_id, url=url, action='play_video', category_id=category_id, category_url=category_url, category_name=category_name)
-            title = title.replace('&#039;', "'").replace('&#034;', '"')
-            channel.addLink(title, vurl, None)
+            full_title = full_title.replace('&#039;', "'").replace('&#034;', '"')
+            channel.addLink(full_title, vurl, img)
             if return_result:
-                result.append({'name': title,
+                result.append({'name': full_title,
                                'channel_id': self.channel_id,
                                'url': url,
                                'action': 'play_video'})
@@ -82,6 +90,8 @@ class Channel(channel.Channel):
                      '234p': 'mobile'}
         addon = xbmcaddon.Addon()
         setting_quality = addon.getSetting('rtbf_quality')
+        if not setting_quality:
+            setting_quality = '720p'
         regex = r""""%s":"([^"]+)""" % (qualities[setting_quality])
         video_url = re.findall(regex, media_json)[0]
         channel.playUrl(video_url)
