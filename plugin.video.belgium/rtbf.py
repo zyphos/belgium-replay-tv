@@ -76,24 +76,29 @@ class Channel(channel.Channel):
                 
     def play_video(self, datas):
         url = datas.get('url')
+        print '====play video==='
+        print url
         data = channel.get_url(url)
-        regex = r"""src="(https://www.rtbf.be/auvio/embed/internal/media[^"]+)"""
-        iframe_url = re.findall(regex, data)[0]
-        data = channel.get_url(iframe_url)
-        regex = r"""data-media="([^"]+)"""
-        media = re.findall(regex, data)[0]
-        
-        h = HTMLParser.HTMLParser()
-        media_json = h.unescape(media)
-        qualities = {'720p': 'high',
-                     '480p': 'web',
-                     '234p': 'mobile'}
+        #regex = r"""src="(https://www.rtbf.be/auvio/embed/internal/media[^"]+)"""
+        #iframe_url = re.findall(regex, data)[0]
+        #data = channel.get_url(iframe_url)
+        #regex = r"""data-media="([^"]+)"""
+        #media = re.findall(regex, data)[0]
+        #
+        #h = HTMLParser.HTMLParser()
+        #media_json = h.unescape(media)
+        #qualities = {'720p': 'high',
+        #             '480p': 'web',
+        #             '234p': 'mobile'}
         addon = xbmcaddon.Addon()
         setting_quality = addon.getSetting('rtbf_quality')
         if not setting_quality:
             setting_quality = '720p'
-        regex = r""""%s":"([^"]+)""" % (qualities[setting_quality])
-        video_url = re.findall(regex, media_json)[0]
+        # <meta itemprop="contentUrl" content="http://rtbf-vod.l3.freecaster.net/vod/rtbf/geo/open/p/pE4pbU1ncE_720p.mp4">
+        media_regex = r"""content="([^_"]+_%s.mp4)""" % setting_quality
+        print media_regex
+        video_url = re.findall(media_regex, data)[0]
+        print video_url
         channel.playUrl(video_url)
 
 
