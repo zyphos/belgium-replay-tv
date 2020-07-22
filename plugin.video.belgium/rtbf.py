@@ -99,8 +99,10 @@ class Channel(channel.Channel):
         print media_regex
         video_url = re.findall(media_regex, data)[0]
         print video_url
-        prefix = video_url.rsplit('_',1)[0]
-        video_url = '%s_%s.mp4' % (prefix, setting_quality)
+        prefix, suffix = video_url.rsplit('_',1)
+        found_quality = int(suffix.split('p',1)[0])
+        if found_quality >= int(setting_quality[:-1]):
+            video_url = '%s_%s.mp4' % (prefix, setting_quality)
         print video_url
         channel.playUrl(video_url)
 
