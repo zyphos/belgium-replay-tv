@@ -93,11 +93,14 @@ class Channel(channel.Channel):
         addon = xbmcaddon.Addon()
         setting_quality = addon.getSetting('rtbf_quality')
         if not setting_quality:
-            setting_quality = '720p'
+            setting_quality = '1080p'
         # <meta itemprop="contentUrl" content="http://rtbf-vod.l3.freecaster.net/vod/rtbf/geo/open/p/pE4pbU1ncE_720p.mp4">
-        media_regex = r"""content="([^_"]+_%s.mp4)""" % setting_quality
+        media_regex = r"""content="([^_"]+_\d+p.mp4)"""
         print media_regex
         video_url = re.findall(media_regex, data)[0]
+        print video_url
+        prefix = video_url.rsplit('_',1)[0]
+        video_url = '%s_%s.mp4' % (prefix, setting_quality)
         print video_url
         channel.playUrl(video_url)
 

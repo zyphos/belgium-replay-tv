@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="30101">
-        <setting id="rtbf_quality" type="select" label="30102" values="234p|480p|720p" default="720p"/>
+        <setting id="rtbf_quality" type="select" label="30102" values="234p|480p|720p|1080p" default="1080p"/>
     </category>
 </settings>
